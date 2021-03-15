@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/embed.css') }}">
+</head>
+<body>
+
+<form method="POST" class="container">
+ <input class="center" type="submit" name="action" value="Würfeln!">
+    <br>
+<div class="textarea">{% if text %}
+{{text|safe}}
+    {% else %}Tabelle wählen und Würfeln!{% endif %}</div><hr>
+<a href="https://www.nightmaresundertrees.de/informationen-anmerkungen-zum-system-matters-blaupausen-wuerfler/" class="misc">Anmerkungen</a> |
+<a href="https://www.nightmaresundertrees.de/impressum/" class="misc">Impressum</a>
+</form>
+</body>
+</html>

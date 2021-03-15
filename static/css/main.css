@@ -1,0 +1,111 @@
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  background-color: #EEE;
+}
+html, body {
+    height: 100%;
+}
+
+html {
+    display: table;
+    margin: auto;
+}
+
+body {
+    display: table-cell;
+}
+
+.textarea{
+background-color: #DDD;
+padding: 16px;
+box-sizing: border-box;
+width:100%;
+font-size: 20px;
+font-family: "Georgia", Serif, Fantasy;
+box-shadow: 0 0 5px #555;
+line-height:150%}
+
+
+.center {
+    margin-left:auto;
+    margin-right:auto;
+    display:block;
+}
+
+select{
+    font-size: 15px;
+    padding: 5px 5px 5px 5px;
+    box-shadow: 0 0 5px #555;
+}
+
+input{
+box-sizing: border-box;
+font-family: "Lucida Handwriting", Cursive, Fantasy;
+font-size: 20px;
+    padding: 10px 30px 10px 30px;
+    box-shadow: 0 0 5px #555;
+}
+
+.back{
+padding:0px 5px 5px 16px;
+font-family: "Georgia", Serif, Fantasy;
+font-style: italic;
+box-sizing:border-box;
+background-color: #ABC;
+border: none;
+box-shadow: none;
+color: #444;
+font-size: 12px}
+
+
+td{
+padding: 5px;
+}
+
+table, th, td {
+border: 1px solid black;
+}
+
+table{
+text-align:center;
+background-color: #DDD;
+box-sizing: border-box;
+width:100%;
+font-size: 20px;
+font-family: "Georgia", Serif, Fantasy;
+box-shadow: 0 0 5px #555;
+}
+
+tr.fat{
+border: 3px solid black
+}
+
+
+.container {
+    position:absolute;
+    left:10%;
+    right:10%;
+    margin: 50px auto auto auto;
+    padding: 15px 15px 15px 15px;
+    box-shadow: 0px 0px 50px #ccc;
+    border: 3px groove #CCC;
+    background-color: #ABC;
+    align-items: center;
+}
+.misc{
+font-size:10px;
+font-style:italic}
+
+.search{
+font-size:13px;
+font-style:italic}
+
+.datalist{
+font-size:15px;
+font-family: "Georgia", Serif, Fantasy;
+padding: 5px 5px 5px 5px;
+width: auto;
+margin-left:auto;
+margin-right:auto;
+display:block;
+width: 100% }

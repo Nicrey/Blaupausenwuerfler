@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Blaupausen Würfler - System Matters </title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+
+<form method="POST" class="container">
+
+        <a href="https://roll.nightmaresundertrees.de" class="search">Zur Listenauswahl</a>
+<h1>System Matters Blaupausen Würfler</h1>
+    <input list="tables_list" placeholder="Tippen um nach Tabellen zu suchen." class="datalist" name="tables" id="tables" value="{{selected['selected']}}">
+    <datalist id="tables_list">
+      {% for o in option_list %}
+            {% for table in option_list[o] %}
+                <option value ="{{table.name}}">{{table.display_name}}</option>
+            {% endfor%}
+        {% endfor %}
+    </datalist>
+
+<br>
+ <input class="center" type="submit" name="action" value="Würfeln!">
+    <br>
+<div class="textarea">{% if text %}
+{{text|safe}}
+    {% else %}Tabelle wählen und Würfeln!{% endif %}</div>
+
+<p class="back">{% if misc %}
+{{misc|safe}}{% endif %}</p>
+<hr>
+    <p class ="misc">Einige Browser könnten Schwierigkeiten mit dem HTML Element haben, das für die Suche verwendet wird.
+        Falls das der Fall sein sollte, könnt ihr es mit einem anderen Browser versuchen (z.B. Firefox oder Chrome) oder den Browser updaten.</p>
+<a href="https://www.nightmaresundertrees.de/informationen-anmerkungen-zum-system-matters-blaupausen-wuerfler/" class="misc">Anmerkungen</a> |
+<a href="https://www.nightmaresundertrees.de/impressum/" class="misc">Impressum</a>
+</form>
+</body>
+</html>
