@@ -10,5 +10,3 @@ here=os.path.dirname(__file__)
 load_dotenv(f"{here}/.env")
 application.secret_key = os.getenv("BW_SECRET_KEY")
 print(os.getenv("BW_DATA_FOLDER"))
-import subprocess
-subprocess.call(['whoami', '>', '/home/apache_log.txt'])
