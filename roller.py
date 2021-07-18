@@ -112,6 +112,11 @@ def update_table_data():
     key = request.form['key']
     if key == os.getenv("UPDATE_KEY"):
         get_existing_tables_from_cloud()
+        global tables
+        global table_map
+        tables, table_map = util.read_tables()
+        global last_update
+        last_update = util.read_last_crawl()
         return "UPDATE INITIATED"
     else:
         return "PERMISSION DENIED (UPDATEKEY)"
@@ -131,8 +136,10 @@ util.path = os.getenv("BW_DATA_FOLDER")
 path = util.path
 util.config_path = os.getenv("BW_CONFIG_FOLDER")
 util.log_path = os.getenv("BW_LOG_PATH")
-util.ensure_directories()
-get_existing_tables_from_cloud()
+if not os.path.isfile(f"{util.config_path}/last_crawl.txt"):
+    print("Skipping File download, since last_crawl.txt exists.")
+    util.ensure_directories()
+    get_existing_tables_from_cloud()
 tables, table_map = util.read_tables()
 last_update = util.read_last_crawl()
 
