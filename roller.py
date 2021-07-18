@@ -8,7 +8,6 @@ from cloud_connection import get_existing_tables_from_cloud
 
 app = Flask(__name__)
 cors = CORS(app)
-load_dotenv()
 
 
 def get_table(name, fuzzy=False):
@@ -125,9 +124,13 @@ def show_log():
     return '<br>'.join(lines)
 
 
+here = os.path.dirname(__file__)
+load_dotenv(f"{here}/.env")
 curr_value = -1
 util.path = os.getenv("BW_DATA_FOLDER")
 path = util.path
+util.config_path = os.getenv("BW_CONFIG_FOLDER")
+util.log_path = os.getenv("BW_LOG_PATH")
 util.ensure_directories()
 get_existing_tables_from_cloud()
 tables, table_map = util.read_tables()

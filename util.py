@@ -9,8 +9,8 @@ from table import Table
 
 path = ""
 crawl_path = 'crawled_tables'
-config_path = 'config'
-log_path = 'log.txt'
+config_path = "config"
+log_path = "log.txt"
 
 GENERATOR_PRE = 'Generator'
 MULTGENERATOR_PRE = 'MultiGenerator'
@@ -38,10 +38,10 @@ def is_config(filename):
 
 
 def parse_category_config():
-    with open(f"{config_path}/config_categories") as read:
+    with open(f"{config_path}/config_categories", encoding='cp1252') as read:
         all_lines = read.readlines()
-
     sort_map = {}
+
     current_key = ''
     for line in all_lines:
         if line.startswith('###'):
@@ -70,6 +70,7 @@ def ensure_directory(path):
 
 
 def ensure_directories():
+    print(config_path, path, log_path)
     print("Recreating directories")
     ensure_directory(config_path)
     ensure_directory(path)
