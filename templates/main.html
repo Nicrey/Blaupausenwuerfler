@@ -9,30 +9,37 @@
 
 <form method="POST" class="container">
 
-<a href="https://roll.nightmaresundertrees.de/search" class="search">Zur Suchauswahl</a>
-<h1>System Matters Blaupausen Würfler</h1>
- <select class="center" name="tables" id="tables">
-      {% for o in option_list %}
+    <a href="https://roll.nightmaresundertrees.de/search" class="search">Zur Suchauswahl</a>
+    <h1>System Matters Blaupausen Würfler</h1>
+    <select class="center" name="tables" id="tables">
+        {% for o in option_list %}
         <optgroup label="{{o}}">
             {% for table in option_list[o] %}
-                {% if selected['selected'] == table.name %} <option value ="{{table.name}}" selected>{{table.display_name}}</option>{% else %}
-                <option value ="{{table.name}}">{{table.display_name}}</option> {% endif %}
+            {% if selected['selected'] == table.name %}
+            <option value="{{table.name}}" selected>{{table.display_name}}</option>
+            {% else %}
+            <option value="{{table.name}}">{{table.display_name}}</option>
+            {% endif %}
             {% endfor%}
         </optgroup>
         {% endfor %}
     </select>
 
 
-<br>
- <input class="center" type="submit" name="action" value="Würfeln!">
     <br>
-<div class="textarea">{% if text %}
-{{text|safe}}
-    {% else %}Tabelle wählen und Würfeln!{% endif %}</div>
-<p class="back">{% if misc %}
-{{misc|safe}}{% endif %}</p>
-<hr>
-<a href="https://www.nightmaresundertrees.de/informationen-anmerkungen-zum-system-matters-blaupausen-wuerfler/" class="misc">Anmerkungen</a> |
-<a href="https://www.nightmaresundertrees.de/impressum/" class="misc">Impressum</a></form>
+    <input class="center" type="submit" name="action" value="Würfeln!">
+    <br>
+    <div class="textarea">{% if text %}
+        {{text|safe}}
+        {% else %}Tabelle wählen und Würfeln!{% endif %}
+    </div>
+    <p class="back">{% if misc %}
+        {{misc|safe}}{% endif %}</p>
+    <hr>
+    <p class="misc">Letztes Update: {{last_update}}</p>
+    <hr>
+    <a href="https://www.nightmaresundertrees.de/informationen-anmerkungen-zum-system-matters-blaupausen-wuerfler/"
+       class="misc">Anmerkungen</a> |
+    <a href="https://www.nightmaresundertrees.de/impressum/" class="misc">Impressum</a></form>
 </body>
 </html>

@@ -1,13 +1,10 @@
 import os
-from os import listdir
 from flask_cors import CORS
 from dotenv import load_dotenv
 from flask import Flask, render_template, request
 
 import util
-from generator import Generator
-from table import Table
-
+from cloud_connection import get_existing_tables_from_cloud
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -30,8 +27,13 @@ def render(table, html):
         table_obj = get_table(table)
         text = table_obj.roll(-1)[1]
         info = table_obj.get_info()
-    return render_template(html, option_list=map, text=text, misc=info, selected={'selected': table})
-
+    return render_template(html,
+                           option_list=table_map,
+                           text=text,
+                           misc=info,
+                           selected={'selected': table},
+                           last_update=last_update,
+                           base_bproller_url=os.getenv("SITE_URL"))
 
 
 @app.route("/<table>")
@@ -106,20 +108,31 @@ def button_embed_small(table):
     return render(table, "embed_small.html")
 
 
+@app.route('/table_update/', methods=["POST"])
+def update_table_data():
+    key = request.form['key']
+    if key == os.getenv("UPDATE_KEY"):
+        get_existing_tables_from_cloud()
+        return "UPDATE INITIATED"
+    else:
+        return "PERMISSION DENIED (UPDATEKEY)"
+
+
+@app.route('/log/')
+def show_log():
+    with open(util.log_path) as log_file:
+        lines = log_file.readlines()
+    return '<br>'.join(lines)
+
+
 curr_value = -1
 util.path = os.getenv("BW_DATA_FOLDER")
 path = util.path
-tables = [Table.read_table(f"{path}/{f}") for f in listdir(f"{path}/") if util.is_table(f)]
-tables += [Generator.read_generator(f"{path}/{f}") for f in listdir(f"{path}/") if util.is_generator(f)]
-tables += [Generator.read_generator(f"{path}/{f}", tables) for f in listdir(f"{path}/") if util.is_multi_generator(f)]
-map = {}
-sort_map = util.parse_category_config()
-for cat in sort_map:
-    map[cat] = []
-    for table in tables:
-        if table.link in sort_map[cat]:
-            map[cat].append(table)
-    map[cat] = sorted(map[cat], key=lambda x: (x.display_name, x.max_roll))
-print([table.name for table in tables])
+util.ensure_directories()
+get_existing_tables_from_cloud()
+tables, table_map = util.read_tables()
+last_update = util.read_last_crawl()
+
+# print([table.name for table in tables])
 if __name__ == "__main__":
     app.run(debug=True)

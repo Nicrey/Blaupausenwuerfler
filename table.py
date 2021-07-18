@@ -35,7 +35,7 @@ class Table:
 
     @staticmethod
     def read_table(file):
-        print(f"Reading Table {file}")
+        #rint(f"Reading Table {file}")
         with open(file, encoding='utf-8') as file:
             lines = file.readlines()
         link = lines[0].replace('\n', '')
