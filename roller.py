@@ -114,7 +114,10 @@ def update_table_data():
         get_existing_tables_from_cloud()
         global tables
         global table_map
-        tables, table_map = util.read_tables()
+        global sort_map
+        sort_map = util.parse_category_config()
+        tables, table_map = util.read_tables(sort_map)
+        util.check_table_completeness(tables, sort_map)
         global last_update
         last_update = util.read_last_crawl()
         return "UPDATE INITIATED"
@@ -124,7 +127,7 @@ def update_table_data():
 
 @app.route('/log/')
 def show_log():
-    with open(util.log_path) as log_file:
+    with open(util.log_path, encoding='cp1252') as log_file:
         lines = log_file.readlines()
     return '<br>'.join(lines)
 
@@ -137,10 +140,12 @@ path = util.path
 util.config_path = os.getenv("BW_CONFIG_FOLDER")
 util.log_path = os.getenv("BW_LOG_PATH")
 if not os.path.isfile(f"{util.config_path}/last_crawl.txt"):
-    print("Skipping File download, since last_crawl.txt exists.")
     util.ensure_directories()
     get_existing_tables_from_cloud()
-tables, table_map = util.read_tables()
+else:
+    print("Skipping File download, since last_crawl.txt exists.")
+sort_map = util.parse_category_config()
+tables, table_map = util.read_tables(sort_map)
 last_update = util.read_last_crawl()
 
 # print([table.name for table in tables])

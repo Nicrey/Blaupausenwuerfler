@@ -112,7 +112,7 @@ def check_table_completeness(tables, sort_map):
 
 
     # Write log
-    with open(log_path, 'w') as log_file:
+    with open(log_path, 'w', encoding='cp1252') as log_file:
         log_file.write("Fehlende Tabellen laut Index:\n")
         for category, table_link in missing_tables:
             category_clean = category.replace('\n', '')
@@ -129,7 +129,7 @@ def check_table_completeness(tables, sort_map):
             log_file.write(f"{table_link}\n")
 
 
-def read_tables():
+def read_tables(sort_map):
     print("Reading normal Tables")
     tables = [Table.read_table(f"{path}/{f}") for f in listdir(f"{path}/") if is_table(f)]
     print("Reading Generator-Tables")
@@ -138,7 +138,7 @@ def read_tables():
                is_multi_generator(f)]
     table_map = {}
     print("Sorting Tables")
-    sort_map = parse_category_config()
+
     for cat in sort_map:
         table_map[cat] = []
         for table in tables:
@@ -146,7 +146,7 @@ def read_tables():
                 table_map[cat].append(table)
         table_map[cat] = sorted(table_map[cat], key=lambda x: (x.display_name, x.max_roll))
     print("Checking Tables")
-    check_table_completeness(tables, sort_map)
+
     return tables, table_map
 
 
