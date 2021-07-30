@@ -1,0 +1,2 @@
+RENAME TABLE $$TABLE_NAME$$_next TO $$TABLE_NAME$$;
+

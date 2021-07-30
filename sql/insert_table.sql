@@ -1,0 +1,1 @@
+INSERT INTO roll_tables_next VALUES ('$$TABLE_NAME$$', '$$CATEGORY$$', '$$TABLE_JSON$$', '$$TABLE_TYPE$$')

@@ -11,6 +11,7 @@ path = ""
 crawl_path = 'crawled_tables'
 config_path = "config"
 log_path = "log.txt"
+sql_path = "sql"
 
 GENERATOR_PRE = 'Generator'
 MULTGENERATOR_PRE = 'MultiGenerator'
@@ -153,3 +154,9 @@ def read_tables(sort_map):
 def read_last_crawl():
     with open(f"{config_path}/last_crawl.txt") as last_crawl:
         return last_crawl.readline()
+
+
+def get_sql_query(file):
+    with open(f"{sql_path}/{file}") as sql_file:
+        lines = sql_file.readlines()
+    return ' '.join(lines)

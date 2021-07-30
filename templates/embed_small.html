@@ -2,18 +2,31 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/embed.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
 <body>
 
 <form method="POST" class="container">
- <input class="center" type="submit" name="action" value="Würfeln!">
-    <br>
+
+<a href="/search" class="search">Zur Suchauswahl</a> |
+<a href="/links" class="search">Zur Linkübersicht</a> |
+<a href=".." class="search">Zur Listenauswahl</a>
+
+    <h2 align="center">{{selected['selected']}}</h2>
+
+ <input class="center" type="submit" name="action" value="Würfeln!"><br>
 <div class="textarea">{% if text %}
 {{text|safe}}
-    {% else %}Tabelle wählen und Würfeln!{% endif %}</div><hr>
-<a href="https://www.nightmaresundertrees.de/informationen-anmerkungen-zum-system-matters-blaupausen-wuerfler/" class="misc">Anmerkungen</a> |
-<a href="https://www.nightmaresundertrees.de/impressum/" class="misc">Impressum</a>
+    {% else %}Tabelle wählen und Würfeln!{% endif %}</div>
+
+     <p class="back">{% if misc %}
+        {{misc|safe}}{% endif %}</p>
+    <hr>
+    <p class="misc">Letztes Update: {{last_update}}</p>
+    <hr>
+    <a href="https://www.nightmaresundertrees.de/informationen-anmerkungen-zum-system-matters-blaupausen-wuerfler/"
+       class="misc">Anmerkungen</a> |
+    <a href="https://www.nightmaresundertrees.de/impressum/" class="misc">Impressum</a></form>
 </form>
 </body>
 </html>

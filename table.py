@@ -1,3 +1,4 @@
+import json
 import random
 
 
@@ -32,6 +33,8 @@ class Table:
             return new_value, str(new_value) + ':<br><br>' + "<table></tr>" + self.entries[str(new_value)] + "</table>"
         return new_value, self.entries[str(new_value)]
 
+    def to_json(self):
+        return json.dumps(self.__dict__)
 
     @staticmethod
     def read_table(file):
@@ -66,5 +69,21 @@ class Table:
 
     def get_info(self):
         return f'''{self.idea + "<br>" if self.idea != "" else ""}{self.authors} <br> <a href="{self.link}">Komplette Tabelle</a>'''
+
+    @classmethod
+    def from_json(cls, table_json):
+        json_dict = json.loads(table_json)
+        name = json_dict['name']
+        die = json_dict['die']
+        link = json_dict['link']
+        table = cls(name, die, link)
+        table.entries = json_dict['entries']
+        table.authors = json_dict['authors']
+        table.idea = json_dict['idea']
+        table.is_table_table = json_dict['is_table_table']
+        return table
+
+
+
 
 

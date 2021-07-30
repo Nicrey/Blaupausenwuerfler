@@ -1,5 +1,8 @@
 flask
 flask_cors
+flask_sqlalchemy
+Flask-Session
 python-dotenv
 fuzzywuzzy[speedup]
 google-cloud-storage
+pymysql

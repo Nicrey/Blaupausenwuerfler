@@ -1,76 +1,118 @@
 import os
 from flask_cors import CORS
 from dotenv import load_dotenv
-from flask import Flask, render_template, request
+from flask import Flask, request
 
+from flask import session
+from flask_session import Session
+from flask_sqlalchemy import SQLAlchemy
 import util
-from cloud_connection import get_existing_tables_from_cloud
+import controller
 
 app = Flask(__name__)
+
+app.config['SESSION_TYPE'] = 'filesystem'
+here = os.path.dirname(__file__)
+load_dotenv(f"{here}/.env")
+db_user = os.getenv("DB_USER")
+db_password = os.getenv("DB_PASSWORD")
+db_server = os.getenv("DB_SERVER")
+db_name = os.getenv('DB_NAME')
+db_socket = os.getenv("DB_SOCKET")
+user_pass = f'mysql+pymysql://{db_user}:{db_password}@'
+app.config['SQLALCHEMY_DATABASE_URI'] = user_pass + db_server + db_name
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+db = SQLAlchemy(app)
+Session(app)
+
 cors = CORS(app)
 
+util.path = os.getenv("BW_DATA_FOLDER")
+util.config_path = os.getenv("BW_CONFIG_FOLDER")
+util.log_path = os.getenv("BW_LOG_PATH")
+util.sql_path = os.getenv("BW_SQL_PATH")
 
-def get_table(name, fuzzy=False):
-    print("GETTABLE", name, fuzzy)
-    if fuzzy:
-        name = util.find_best_match([table.name.lower() for table in tables], name)
-    for table in tables:
-        if table.name.lower() == name.lower():
-            return table
-
-
-def render(table, html):
-    text = 'Tabelle wählen und würfeln.'
-    info = ''
-    if get_table(table) is not None:
-        table_obj = get_table(table)
-        text = table_obj.roll(-1)[1]
-        info = table_obj.get_info()
-    return render_template(html,
-                           option_list=table_map,
-                           text=text,
-                           misc=info,
-                           selected={'selected': table},
-                           last_update=last_update,
-                           base_bproller_url=os.getenv("SITE_URL"))
+"""
+    BEFORE EACH REQUEST
+"""
 
 
-@app.route("/<table>")
-def hello_table(table):
-    return render(table, "main.html")
+@app.before_request
+def before_request_func():
+    controller.session_setup()
+
+
+"""
+    DEFAULT SITE
+"""
 
 
 @app.route("/")
 def hello():
-    return render("", "main.html")
+    return controller.render("", "main.html")
+
+
+@app.route('/', methods=["GET", "POST"])
+def button():
+    table = request.form['tables']
+    return controller.render(table, "main.html")
+
+
+"""
+    SEARCH VIEW 
+"""
 
 
 @app.route("/search/")
 def hello_search():
-    return render("", "search.html")
+    return controller.render("", "search.html")
 
 
-@app.route("/embed/")
-def hello_embed():
-    return render("", "embed.html")
+@app.route('/search/', methods=["GET", "POST"])
+def button_search():
+    table_post = request.form['tables']
+    return controller.render(table_post, "search.html")
 
 
-@app.route("/embed_small/<table>")
-def hello_embed_small(table):
-    return render(table, "embed_small.html")
+"""
+    LINK OVERVIEW
+"""
+
+@app.route("/links/")
+def hello_links():
+    return controller.render("", "links.html")
+
+"""
+    ONE TABLE VIEW
+"""
+
+
+@app.route("/<table>")
+def hello_table(table):
+    return controller.render(table, "embed_small.html")
+
+
+@app.route('/<table>', methods=["GET", "POST"])
+def button_table(table):
+    return controller.render(table, "embed_small.html")
+
+
+"""
+    API CALLS
+"""
 
 
 @app.route("/api/<table>")
 def api_call(table):
-    if get_table(table) is None:
+    if controller.get_table(table) is None:
         return "Unbekannte Tabelle. Bitte URL verbessern"
-    text = get_table(table).roll(-1)[1]
+    text = controller.get_table(table).roll(-1)[1]
     return text
 
 
 @app.route("/fuzzyapi/<table>")
 def fuzzyapi_call(table):
-    table = get_table(table, fuzzy=True)
+    table = controller.get_table(table, fuzzy=True)
     if table is None:
         return "Unbekannte Tabelle. Bitte Anfrage verbessern"
     text = f"<i>Tabelle: {table.name}</i><br>"
@@ -78,49 +120,17 @@ def fuzzyapi_call(table):
     return text
 
 
-@app.route('/', methods=["GET", "POST"])
-def button():
-    table = request.form['tables']
-    return render(table, "main.html")
-
-
-@app.route('/<table>', methods=["GET", "POST"])
-def button_table(table):
-    table_post = request.form['tables']
-    return render(table_post, "main.html")
-
-
-@app.route('/search/', methods=["GET", "POST"])
-def button_search():
-    table_post = request.form['tables']
-    return render(table_post, "search.html")
-
-
-@app.route('/embed/', methods=["GET", "POST"])
-def button_embed():
-    table = request.form['tables']
-    return render(table, "embed.html")
-
-
-@app.route('/embed_small/<table>', methods=["GET", "POST"])
-def button_embed_small(table):
-    return render(table, "embed_small.html")
+"""
+    CONFIG CALLS
+"""
 
 
 @app.route('/table_update/', methods=["POST"])
 def update_table_data():
     key = request.form['key']
     if key == os.getenv("UPDATE_KEY"):
-        get_existing_tables_from_cloud()
-        global tables
-        global table_map
-        global sort_map
-        sort_map = util.parse_category_config()
-        tables, table_map = util.read_tables(sort_map)
-        util.check_table_completeness(tables, sort_map)
-        global last_update
-        last_update = util.read_last_crawl()
-        return "UPDATE INITIATED"
+        controller.update_tables()
+        return "UPDATE SUCCESSFUL"
     else:
         return "PERMISSION DENIED (UPDATEKEY)"
 
@@ -132,22 +142,60 @@ def show_log():
     return '<br>'.join(lines)
 
 
-here = os.path.dirname(__file__)
-load_dotenv(f"{here}/.env")
-curr_value = -1
-util.path = os.getenv("BW_DATA_FOLDER")
-path = util.path
-util.config_path = os.getenv("BW_CONFIG_FOLDER")
-util.log_path = os.getenv("BW_LOG_PATH")
-if not os.path.isfile(f"{util.config_path}/last_crawl.txt"):
-    util.ensure_directories()
-    get_existing_tables_from_cloud()
-else:
-    print("Skipping File download, since last_crawl.txt exists.")
-sort_map = util.parse_category_config()
-tables, table_map = util.read_tables(sort_map)
-last_update = util.read_last_crawl()
+"""
+    TESTING
+"""
+
+
+@app.route('/refresh/')
+def refresh_session():
+    session.clear()
+    return "Session cookies cleared"
+
+
+@app.route('/session/')
+def session_call():
+    controller.session_setup()
+    return 'ok'
+
+
+@app.route('/session_get/')
+def session_get():
+    return '<br>'.join([x[0] for x in session['table_list']])
+
+
+@app.route('/db/')
+def db_test():
+    try:
+        controller.update_tables()
+        return '<h1>It works.</h1>'
+    except Exception as e:
+        # see Terminal for description of the error
+        print("\nThe error:\n" + str(e) + "\n")
+        return '<h1>Something is broken.</h1>'
+
 
 # print([table.name for table in tables])
 if __name__ == "__main__":
     app.run(debug=True)
+
+# OLD EMBEDS not needed anymore?
+# @app.route('/embed/', methods=["GET", "POST"])
+# def button_embed():
+#     table = request.form['tables']
+#     return render(table, "embed.html")
+#
+#
+# @app.route('/embed_small/<table>', methods=["GET", "POST"])
+# def button_embed_small(table):
+#     return render(table, "embed_small.html")
+#
+#
+# @app.route("/embed/")
+# def hello_embed():
+#     return render("", "embed.html")
+#
+#
+# @app.route("/embed_small/<table>")
+# def hello_embed_small(table):
+#     return render(table, "embed_small.html")

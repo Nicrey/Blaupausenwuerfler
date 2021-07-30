@@ -1,7 +1,20 @@
 import copy
 import itertools
+import json
 import random
 import re
+
+from json import JSONEncoder
+
+from table import Table
+
+
+def _default(self, obj):
+    return getattr(obj.__class__, "to_json", _default.default)(obj)
+
+
+_default.default = JSONEncoder().default
+JSONEncoder.default = _default
 
 
 class TableWrapper:
@@ -13,6 +26,25 @@ class TableWrapper:
 
     def roll(self):
         return self.table.roll(-1)
+
+    def to_json(self):
+        return json.dumps(self.__dict__)
+
+    @classmethod
+    def from_json(cls, wrapper_json):
+        json_dict = json.loads(wrapper_json)
+        name = json_dict['name']
+        table_json = json_dict['table']
+        if "main_table" in table_json:
+            table = Generator.from_json(table_json)
+        else:
+            table = Table.from_json(table_json)
+        wrapper = cls(name, table)
+        wrapper.lookup = json_dict['lookup']
+        wrapper.finished = json_dict['finished']
+        return wrapper
+
+
 
 
 class GeneratorTable:
@@ -32,6 +64,19 @@ class GeneratorTable:
         else:
             self.entries[str(int(roll))] = entry.replace('\u2028', '').replace('\u0155', '')
 
+    def to_json(self):
+        return json.dumps(self.__dict__)
+
+    @classmethod
+    def from_json(cls, table_json):
+        json_dict = json.loads(table_json)
+        name = json_dict['name']
+        die = json_dict['die']
+        lookup = json_dict['lookup']
+        table = cls(name, die, lookup)
+        table.entries = json_dict['entries']
+        return table
+
 
 class TagHierarchy:
     def __init__(self, hierarchy_string):
@@ -45,6 +90,16 @@ class TagHierarchy:
         for tag in s:
             sum += self.hierarchy[tag]
         return len(s) * max(self.hierarchy.values()) - sum
+
+    def to_json(self):
+        return json.dumps(self.__dict__)
+
+    @classmethod
+    def from_json(cls, tags_json):
+        json_dict = json.loads(tags_json)
+        hierarchy = cls("")
+        hierarchy.hierarchy = json_dict['hierarchy']
+        return hierarchy
 
 
 class Replacement:
@@ -127,12 +182,35 @@ class Generator:
         self.name = name
         self.idea = ''
         self.authors = ''
-        self.main_table = None
-        self.sub_tables = {}
-        self.lookups = {}
-        self.tag_hierarchy = {}
+        self.main_table = None  # Generator Table
+        self.sub_tables = {}  # Table Wrapper or Generator Tables
+        self.lookups = {}  # Generator Tables
+        self.tag_hierarchy = {}  # Tag Hierarchy
         self.display_name = name
         self.max_roll = 0
+
+    def to_json(self):
+        return json.dumps(self.__dict__)
+
+    @classmethod
+    def from_json(cls, generator_json):
+        json_dict = json.loads(generator_json)
+        generator = cls(json_dict['link'], json_dict['name'])
+        generator.authors = json_dict['authors']
+        generator.idea = json_dict['idea']
+        generator.main_table = GeneratorTable.from_json(json_dict['main_table'])
+        print(json_dict)
+        generator.sub_tables = {
+            key: GeneratorTable.from_json(json_dict['sub_tables'][key])
+            if 'entries' in json.loads(json_dict['sub_tables'][key])
+            else TableWrapper.from_json(json_dict['sub_tables'][key])
+            for key in json_dict['sub_tables']
+        }
+        generator.lookups = {key: GeneratorTable.from_json(json_dict['lookups'][key]) for key in json_dict['lookups']}
+        generator.tag_hierarchy = TagHierarchy.from_json(json_dict['tag_hierarchy'])
+        generator.display_name = json_dict['display_name']
+        generator.max_roll = json_dict['max_roll']
+        return generator
 
     def add_table(self, table):
         if table.lookup:

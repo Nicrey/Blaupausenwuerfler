@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Blaupausen Würfler - System Matters </title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+
+<form method="POST" class="container">
+
+    <a href="/search" class="search">Zur Suchauswahl</a> | <a href=".." class="search">Zur Listenauswahl</a>
+    <h1>System Matters Blaupausen Würfler</h1>
+    {% for o in option_list %}
+    <h3>{{o}}</h3>
+        {% for table in option_list[o] %}
+            <a href="/{{table}}">{{table}}</a><br>
+        {% endfor%}
+    {% endfor %}
+
+    <p class="back">{% if misc %}
+        {{misc|safe}}{% endif %}</p>
+    <hr>
+    <p class="misc">Letztes Update: {{last_update}}</p>
+    <hr>
+    <a href="https://www.nightmaresundertrees.de/informationen-anmerkungen-zum-system-matters-blaupausen-wuerfler/"
+       class="misc">Anmerkungen</a> |
+    <a href="https://www.nightmaresundertrees.de/impressum/" class="misc">Impressum</a></form>
+</body>
+</html>
